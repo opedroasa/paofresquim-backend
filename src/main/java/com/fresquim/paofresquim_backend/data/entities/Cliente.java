@@ -1,39 +1,28 @@
 package com.fresquim.paofresquim_backend.data.entities;
 
-import java.util.Objects;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "cliente")
 public class Cliente {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_cliente")
     private Integer idCliente;
+
     private String nome;
     private String telefone;
     private String endereco;
     private String email;
+
+    @Column(name = "status_credito")
     private String statusCredito;
 
     public Cliente() {}
 
-    public Cliente(
-            Integer idCliente,
-            String nome,
-            String telefone,
-            String endereco,
-            String email,
-            String statusCredito) {
-        this.idCliente = idCliente;
-        this.nome = nome;
-        this.telefone = telefone;
-        this.endereco = endereco;
-        this.email = email;
-        this.statusCredito = statusCredito;
-    }
-
     public Integer getIdCliente() {
         return idCliente;
-    }
-
-    public void setIdCliente(Integer idCliente) {
-        this.idCliente = idCliente;
     }
 
     public String getNome() {
@@ -80,18 +69,5 @@ public class Cliente {
 
     public void setStatusCredito(String statusCredito) {
         this.statusCredito = statusCredito;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Cliente)) return false;
-        Cliente cliente = (Cliente) o;
-        return Objects.equals(idCliente, cliente.idCliente);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(idCliente);
     }
 }
