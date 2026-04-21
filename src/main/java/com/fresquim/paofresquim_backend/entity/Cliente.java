@@ -1,4 +1,4 @@
-package com.fresquim.paofresquim_backend.data.entities;
+package com.fresquim.paofresquim_backend.entity;
 
 import jakarta.persistence.*;
 

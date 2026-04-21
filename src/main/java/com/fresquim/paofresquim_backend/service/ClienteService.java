@@ -1,7 +1,7 @@
-package com.fresquim.paofresquim_backend.domain.service;
+package com.fresquim.paofresquim_backend.service;
 
-import com.fresquim.paofresquim_backend.data.entities.Cliente;
-import com.fresquim.paofresquim_backend.data.repository.ClienteRepository;
+import com.fresquim.paofresquim_backend.entity.Cliente;
+import com.fresquim.paofresquim_backend.repository.ClienteRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.fresquim.paofresquim_backend.controller;
 
-import com.fresquim.paofresquim_backend.data.entities.Cliente;
-import com.fresquim.paofresquim_backend.domain.service.ClienteService;
+import com.fresquim.paofresquim_backend.entity.Cliente;
+import com.fresquim.paofresquim_backend.service.ClienteService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
