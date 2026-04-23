@@ -1,6 +1,5 @@
 package com.fresquim.paofresquim_backend.entity;
 
-import com.fresquim.paofresquim_backend.entity.Estoque;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;

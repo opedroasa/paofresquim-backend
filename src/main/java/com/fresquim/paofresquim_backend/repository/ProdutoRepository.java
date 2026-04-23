@@ -1,5 +1,6 @@
-package br.com.paofresquim.produto;
+package com.fresquim.paofresquim_backend.repository;
 
+import com.fresquim.paofresquim_backend.entity.Produto;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

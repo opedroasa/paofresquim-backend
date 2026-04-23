@@ -1,7 +1,9 @@
-package br.com.paofresquim.estoque;
+package com.fresquim.paofresquim_backend.service;
 
-import br.com.paofresquim.produto.Produto;
-import br.com.paofresquim.produto.ProdutoRepository;
+import com.fresquim.paofresquim_backend.entity.Estoque;
+import com.fresquim.paofresquim_backend.entity.Produto;
+import com.fresquim.paofresquim_backend.repository.ProdutoRepository;
+import com.fresquim.paofresquim_backend.repository.EstoqueRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

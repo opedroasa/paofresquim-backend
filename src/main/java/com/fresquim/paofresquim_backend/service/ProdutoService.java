@@ -1,5 +1,7 @@
-package br.com.paofresquim.produto;
+package com.fresquim.paofresquim_backend.service;
 
+import com.fresquim.paofresquim_backend.entity.Produto;
+import com.fresquim.paofresquim_backend.repository.ProdutoRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
