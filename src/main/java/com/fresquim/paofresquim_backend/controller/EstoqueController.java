@@ -1,5 +1,7 @@
-package br.com.paofresquim.estoque;
+package com.fresquim.paofresquim_backend.controller;
 
+import com.fresquim.paofresquim_backend.entity.Estoque;
+import com.fresquim.paofresquim_backend.service.EstoqueService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
