@@ -139,8 +139,13 @@ public class EstoqueService {
         Estoque estoque = buscarEstoquePorId(id);
 
         BigDecimal novoSaldo = estoque.getQuantidadeAtual().subtract(controleEstoque.quantidade());
+
         if (novoSaldo.compareTo(BigDecimal.ZERO) < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estoque insuficiente para a saída informada.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estoque insuficiente. Saldo atual: " + estoque.getQuantidadeAtual());
+        }
+
+        if (novoSaldo.compareTo(estoque.getEstoqueMinimo()) < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Remoção deixaria o estoque abaixo do mínimo permitido: " + estoque.getEstoqueMinimo());
         }
 
         estoque.setQuantidadeAtual(novoSaldo);
