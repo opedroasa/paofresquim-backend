@@ -4,5 +4,6 @@ public enum TipoPagamento {
     DEBITO,
     CREDITO,
     DINHEIRO,
-    FIADO
+    FIADO,
+    PIX
 }
