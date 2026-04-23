@@ -1,12 +1,15 @@
 package com.fresquim.paofresquim_backend.service;
 
+import com.fresquim.paofresquim_backend.dtos.ControleEstoqueRequestDTO;
+import com.fresquim.paofresquim_backend.dtos.CriarEstoqueRequestDTO;
+import com.fresquim.paofresquim_backend.dtos.EstoqueRequestDTO;
+import com.fresquim.paofresquim_backend.dtos.EstoqueResponseDTO;
 import com.fresquim.paofresquim_backend.entity.Estoque;
 import com.fresquim.paofresquim_backend.entity.Produto;
 import com.fresquim.paofresquim_backend.repository.ProdutoRepository;
 import com.fresquim.paofresquim_backend.repository.EstoqueRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
@@ -18,121 +21,142 @@ public class EstoqueService {
     private final EstoqueRepository estoqueRepository;
     private final ProdutoRepository produtoRepository;
 
-    public EstoqueService(EstoqueRepository estoqueRepository, ProdutoRepository produtoRepository) {
+    public EstoqueService(EstoqueRepository estoqueRepository,
+                          ProdutoRepository produtoRepository) {
         this.estoqueRepository = estoqueRepository;
         this.produtoRepository = produtoRepository;
     }
 
-    @Transactional
-    public Estoque criar(Long produtoId, Estoque estoque) {
-        Produto produto = buscarProduto(produtoId);
+    private Produto recuperaProdutoPorId(Long produtoId) {
+        return produtoRepository.getReferenceById(produtoId);
+    }
+    private Estoque buscarEstoquePorIdProduto(Long produtoId) {
+        return estoqueRepository.findByProdutoId(produtoId).orElse(null);
+    }
 
-        if (estoqueRepository.existsByProdutoId(produtoId)) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Já existe controle de estoque para este produto."
-            );
+    private Estoque buscarEstoquePorId(Long estoqueId) {
+        return estoqueRepository.getReferenceById(estoqueId);
+    }
+
+    public EstoqueResponseDTO criar(CriarEstoqueRequestDTO criarEstoqueRequestDTO) {
+        Produto produto = recuperaProdutoPorId(criarEstoqueRequestDTO.idProduto());
+        Estoque estoque = buscarEstoquePorIdProduto(criarEstoqueRequestDTO.idProduto());
+
+        if (estoque == null) {
+            Estoque estoqueDTO = new Estoque();
+            estoqueDTO.setProduto(produto);
+            estoqueDTO.setQuantidadeAtual(criarEstoqueRequestDTO.quantidadeAtual());
+            estoqueDTO.setEstoqueMinimo(criarEstoqueRequestDTO.estoqueMinimo());
+            estoqueRepository.save(estoqueDTO);
+            return new EstoqueResponseDTO(
+                    estoqueDTO.getId(),
+                    produto.getNome(),
+                    produto.getPreco(),
+                    estoqueDTO.getQuantidadeAtual(),
+                    estoqueDTO.getEstoqueMinimo(),
+                    produto.getCodigoBarras());
+        } else {
+            throw new IllegalArgumentException("Estoque já existe");
         }
-
-        validarEstoque(estoque);
-
-        estoque.setProduto(produto);
-        return estoqueRepository.save(estoque);
     }
 
-    @Transactional(readOnly = true)
-    public List<Estoque> listarTodos() {
-        return estoqueRepository.findAll();
+    public List<EstoqueResponseDTO> listarTodos() {
+        return estoqueRepository.findAll().stream().map(estoque ->
+                new EstoqueResponseDTO(
+                        estoque.getId(),
+                        estoque.getProduto().getNome(),
+                        estoque.getProduto().getPreco(),
+                        estoque.getQuantidadeAtual(),
+                        estoque.getEstoqueMinimo(),
+                        estoque.getProduto().getCodigoBarras())
+        ).toList();
     }
 
-    @Transactional(readOnly = true)
-    public Estoque buscarPorId(Long id) {
-        return estoqueRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Estoque não encontrado."
-                ));
+    public EstoqueResponseDTO buscarPorId(Long id) {
+        return estoqueRepository.findById(id).map(estoque ->
+                new EstoqueResponseDTO(
+                        estoque.getId(),
+                        estoque.getProduto().getNome(),
+                        estoque.getProduto().getPreco(),
+                        estoque.getQuantidadeAtual(),
+                        estoque.getEstoqueMinimo(),
+                        estoque.getProduto().getCodigoBarras()
+                )).orElseThrow();
     }
 
-    @Transactional(readOnly = true)
-    public Estoque buscarPorProduto(Long produtoId) {
-        return estoqueRepository.findByProdutoId(produtoId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Estoque não encontrado para o produto informado."
-                ));
+    public EstoqueResponseDTO buscarEstoquePorProduto(Long produtoId) {
+        Produto produto = recuperaProdutoPorId(produtoId);
+        Estoque estoque = buscarEstoquePorIdProduto(produtoId);
+        return new EstoqueResponseDTO(
+                estoque.getId(),
+                produto.getNome(),
+                produto.getPreco(),
+                estoque.getQuantidadeAtual(),
+                estoque.getEstoqueMinimo(),
+                produto.getCodigoBarras());
     }
 
-    @Transactional
-    public Estoque atualizar(Long id, Estoque estoqueAtualizado) {
-        Estoque estoqueExistente = buscarPorId(id);
-
-        validarEstoque(estoqueAtualizado);
-
-        estoqueExistente.setQuantidadeAtual(estoqueAtualizado.getQuantidadeAtual());
-        estoqueExistente.setEstoqueMinimo(estoqueAtualizado.getEstoqueMinimo());
-
-        return estoqueRepository.save(estoqueExistente);
+    public EstoqueResponseDTO atualizar(Long id, EstoqueRequestDTO estoqueDto) {
+        Estoque estoque = buscarEstoquePorId(id);
+        estoque.setProduto(estoque.getProduto());
+        estoque.setEstoqueMinimo(estoqueDto.estoqueMinimo());
+        estoque.setQuantidadeAtual(estoqueDto.quantidadeAtual());
+        estoqueRepository.save(estoque);
+        return new EstoqueResponseDTO(
+                estoque.getId(),
+                estoque.getProduto().getNome(),
+                estoque.getProduto().getPreco(),
+                estoque.getQuantidadeAtual(),
+                estoque.getEstoqueMinimo(),
+                estoque.getProduto().getCodigoBarras());
     }
 
-    @Transactional
-    public Estoque adicionarQuantidade(Long id, BigDecimal quantidade) {
-        if (quantidade == null || quantidade.compareTo(BigDecimal.ZERO) <= 0) {
+
+    public EstoqueResponseDTO adicionarQuantidade(Long id, ControleEstoqueRequestDTO controleEstoque) {
+        if (controleEstoque.quantidade() == null || controleEstoque.quantidade().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A quantidade adicionada deve ser maior que zero.");
         }
 
-        Estoque estoque = buscarPorId(id);
-        estoque.setQuantidadeAtual(estoque.getQuantidadeAtual().add(quantidade));
+        Estoque estoque = buscarEstoquePorId(id);
+        estoque.setQuantidadeAtual(estoque.getQuantidadeAtual().add(controleEstoque.quantidade()));
 
-        return estoqueRepository.save(estoque);
+        estoqueRepository.save(estoque);
+
+        return new EstoqueResponseDTO(
+                estoque.getId(),
+                estoque.getProduto().getNome(),
+                estoque.getProduto().getPreco(),
+                estoque.getQuantidadeAtual(),
+                estoque.getEstoqueMinimo(),
+                estoque.getProduto().getCodigoBarras());
     }
 
-    @Transactional
-    public Estoque removerQuantidade(Long id, BigDecimal quantidade) {
-        if (quantidade == null || quantidade.compareTo(BigDecimal.ZERO) <= 0) {
+    public EstoqueResponseDTO removerQuantidade(Long id, ControleEstoqueRequestDTO controleEstoque) {
+        if (controleEstoque.quantidade() == null || controleEstoque.quantidade().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A quantidade removida deve ser maior que zero.");
         }
 
-        Estoque estoque = buscarPorId(id);
+        Estoque estoque = buscarEstoquePorId(id);
 
-        BigDecimal novoSaldo = estoque.getQuantidadeAtual().subtract(quantidade);
+        BigDecimal novoSaldo = estoque.getQuantidadeAtual().subtract(controleEstoque.quantidade());
         if (novoSaldo.compareTo(BigDecimal.ZERO) < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estoque insuficiente para a saída informada.");
         }
 
         estoque.setQuantidadeAtual(novoSaldo);
-        return estoqueRepository.save(estoque);
+        estoqueRepository.save(estoque);
+
+        return new EstoqueResponseDTO(
+                estoque.getId(),
+                estoque.getProduto().getNome(),
+                estoque.getProduto().getPreco(),
+                estoque.getQuantidadeAtual(),
+                estoque.getEstoqueMinimo(),
+                estoque.getProduto().getCodigoBarras());
     }
 
-    @Transactional(readOnly = true)
-    public List<Estoque> listarAbaixoDoMinimo() {
-        return estoqueRepository.findAll()
-                .stream()
-                .filter(Estoque::isAbaixoDoMinimo)
-                .toList();
-    }
-
-    @Transactional
     public void deletar(Long id) {
-        Estoque estoque = buscarPorId(id);
+        Estoque estoque = buscarEstoquePorId(id);
         estoqueRepository.delete(estoque);
-    }
-
-    private Produto buscarProduto(Long produtoId) {
-        return produtoRepository.findById(produtoId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Produto não encontrado."
-                ));
-    }
-
-    private void validarEstoque(Estoque estoque) {
-        if (estoque.getQuantidadeAtual() == null || estoque.getQuantidadeAtual().compareTo(BigDecimal.ZERO) < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A quantidade atual não pode ser negativa.");
-        }
-
-        if (estoque.getEstoqueMinimo() == null || estoque.getEstoqueMinimo().compareTo(BigDecimal.ZERO) < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O estoque mínimo não pode ser negativo.");
-        }
     }
 }

@@ -1,9 +1,6 @@
 package com.fresquim.paofresquim_backend.service;
 
-import com.fresquim.paofresquim_backend.dtos.PagamentoRequestDTO;
-import com.fresquim.paofresquim_backend.dtos.ProdutoResponseDTO;
-import com.fresquim.paofresquim_backend.dtos.VendaRequestDTO;
-import com.fresquim.paofresquim_backend.dtos.VendaResponseDTO;
+import com.fresquim.paofresquim_backend.dtos.*;
 import com.fresquim.paofresquim_backend.entity.*;
 import com.fresquim.paofresquim_backend.repository.*;
 import org.springframework.stereotype.Service;
@@ -12,17 +9,16 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class VendaService {
 
-    private VendaRepository vendaRepository;
-    private EstoqueRepository estoqueRepository;
-    private ItemVendaRepository itemVendaRepository;
-    private ProdutoRepository produtoRepository;
-    private ClienteRepository clienteRepository;
-    private FuncionarioRepository funcionarioRepository;
+    private final VendaRepository vendaRepository;
+    private final EstoqueRepository estoqueRepository;
+    private final ItemVendaRepository itemVendaRepository;
+    private final ProdutoRepository produtoRepository;
+    private final ClienteRepository clienteRepository;
+    private final FuncionarioRepository funcionarioRepository;
 
     public VendaService(
             VendaRepository vendaRepository,
@@ -47,11 +43,14 @@ public class VendaService {
     }
 
     private Cliente recuperarClienteId(Long id) {
+        if (id == null) return null;
         return clienteRepository.findById(id.intValue()).orElse(null);
     }
 
-    private Funcionario recuperarFuncionarioId(Long id) { return funcionarioRepository.findById(id.intValue()).orElse(null); }
-
+    private Funcionario recuperarFuncionarioId(Long id) {
+        if (id == null) return null;
+        return funcionarioRepository.findById(id.intValue()).orElse(null);
+    }
     public void atualizarEstoque(Estoque estoque, Long quantidade){
             estoque.setQuantidadeAtual(estoque.getQuantidadeAtual().subtract(new BigDecimal(quantidade)));
             estoqueRepository.save(estoque);
@@ -64,10 +63,34 @@ public class VendaService {
         vendaRepository.save(venda);
     }
 
-    public VendaResponseDTO registarVenda(VendaRequestDTO vendaDTO) {
+    public List<VendaResponseDTO> listarTodasVendas() {
+        return vendaRepository.findAll().stream()
+                .map(venda -> {
+                    List<ItemVenda> items = itemVendaRepository.findByVendaId(venda.getId());
+
+                    List<ProdutoVendaResponseDTO> produtos = items.stream()
+                            .map(item -> new ProdutoVendaResponseDTO(
+                                    item.getId(),
+                                    item.getProduto().getNome(),
+                                    item.getPrecoUnitario(),
+                                    item.getQuantidade(),
+                                    item.getProduto().getUnidadeMedida(),
+                                    item.getProduto().getCodigoBarras()))
+                            .toList();
+
+                    Long idCliente = venda.getCliente() != null ? venda.getCliente().getIdCliente().longValue() : null;
+                    Long idFuncionario = venda.getFuncionario() != null ? venda.getFuncionario().getIdFuncionario().longValue() : null;
+
+                    return new VendaResponseDTO(venda.getId(), produtos, idCliente, idFuncionario, venda.getValorTotal(), venda.getStatusPagamento());
+                })
+                .toList();
+    }
+
+    public VendaResponseDTO registrarVenda(VendaRequestDTO vendaDTO) {
         Cliente cliente = recuperarClienteId(vendaDTO.idCliente());
         Funcionario funcionario = recuperarFuncionarioId(vendaDTO.idFuncionario());
-        Venda venda = new Venda(LocalDateTime.now(), BigDecimal.valueOf(0.0), cliente, funcionario);
+        Venda venda = new Venda(LocalDateTime.now(),BigDecimal.valueOf(0.0), null,false, cliente, funcionario);
+        vendaRepository.save(venda);
         List<ItemVenda> items = new ArrayList<>();
 
         vendaDTO.products().forEach(product -> {
@@ -77,7 +100,14 @@ public class VendaService {
                 throw new IllegalArgumentException("Estoque indisponivel para o item" + recuperarProduto.getNome());
             } else {
                 BigDecimal subTotal = recuperarProduto.getPreco().multiply(new BigDecimal(product.quantidade()));
-                ItemVenda item = new ItemVenda(product.quantidade(), recuperarProduto.getPreco(), subTotal, venda, recuperarProduto);
+                ItemVenda item = new ItemVenda(
+                        product.quantidade(),
+                        recuperarProduto.getPreco(),
+                        subTotal,
+                        venda,
+                        recuperarProduto
+                );
+
                 ItemVenda saves = itemVendaRepository.save(item);
                 items.add(saves);
                 atualizarEstoque(estoque, product.quantidade());
@@ -91,10 +121,16 @@ public class VendaService {
         vendaRepository.save(venda);
         Long idCliente = venda.getCliente() != null ? venda.getCliente().getIdCliente().longValue() : null;
         Long idFuncionario = venda.getFuncionario() != null ? venda.getFuncionario().getIdFuncionario().longValue() : null;
-        List<ProdutoResponseDTO> produtosDTO = items.stream().
-                map( item -> new ProdutoResponseDTO(item.getId(),item.getProduto().getNome(),item.getPrecoUnitario())).
-                toList();
+        List<ProdutoVendaResponseDTO> produtosDTO = items.stream()
+                .map(item -> new ProdutoVendaResponseDTO(
+                        item.getId(),
+                        item.getProduto().getNome(),
+                        item.getPrecoUnitario(),
+                        item.getQuantidade(),
+                        item.getProduto().getUnidadeMedida(),
+                        item.getProduto().getCodigoBarras()))
+                .toList();
 
-        return new VendaResponseDTO(venda.getId(), produtosDTO, idCliente, idFuncionario, total);
+        return new VendaResponseDTO(venda.getId(), produtosDTO, idCliente, idFuncionario, total, venda.getStatusPagamento());
     }
 }
