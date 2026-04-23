@@ -70,4 +70,8 @@ public class Funcionario {
     public void setTelefoneEmergencia(String telefoneEmergencia) {
         this.telefoneEmergencia = telefoneEmergencia;
     }
+
+    public Integer getId() {
+        return 0;
+    }
 }
