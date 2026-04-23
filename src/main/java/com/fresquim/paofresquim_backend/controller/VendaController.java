@@ -1,11 +1,11 @@
 package com.fresquim.paofresquim_backend.controller;
 
 import com.fresquim.paofresquim_backend.dtos.*;
-import com.fresquim.paofresquim_backend.entity.Venda;
 import com.fresquim.paofresquim_backend.service.VendaService;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -20,7 +20,7 @@ public class VendaController {
 
     @PostMapping("/registrar")
     public ResponseEntity<VendaResponseDTO> criar(@RequestBody VendaRequestDTO dto) {
-        VendaResponseDTO response = service.registarVenda(dto);
+        VendaResponseDTO response = service.registrarVenda(dto);
         return ResponseEntity.ok(response);
     }
 
@@ -28,5 +28,10 @@ public class VendaController {
     public ResponseEntity<Void> processarPagamento(@RequestBody PagamentoRequestDTO dto) {
         service.processaPagamento(dto);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/listar")
+    public ResponseEntity<List<VendaResponseDTO>> listar() {
+        return ResponseEntity.ok(service.listarTodasVendas());
     }
 }

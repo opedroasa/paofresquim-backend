@@ -1,56 +1,59 @@
 package com.fresquim.paofresquim_backend.controller;
 
+import com.fresquim.paofresquim_backend.dtos.CriarProdutoRequestDTO;
+import com.fresquim.paofresquim_backend.dtos.ProdutoResponseDTO;
+import com.fresquim.paofresquim_backend.dtos.VendaResponseDTO;
 import com.fresquim.paofresquim_backend.entity.Produto;
 import com.fresquim.paofresquim_backend.service.ProdutoService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/produtos")
+@RequestMapping("/produto")
 public class ProdutoController {
 
-    private final ProdutoService produtoService;
+    private final ProdutoService service;
 
-    public ProdutoController(ProdutoService produtoService) {
-        this.produtoService = produtoService;
+    public ProdutoController(ProdutoService service) {
+        this.service = service;
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Produto criar(@RequestBody Produto produto) {
-        return produtoService.criar(produto);
+    @PostMapping("/criar")
+    public ResponseEntity<ProdutoResponseDTO> criar(@RequestBody CriarProdutoRequestDTO dto) {
+        ProdutoResponseDTO response = service.criar(dto);
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping
-    public List<Produto> listarTodos() {
-        return produtoService.listarTodos();
+    @GetMapping("/listar")
+    public ResponseEntity<List<ProdutoResponseDTO>> listarTodos() {
+        List<ProdutoResponseDTO> response = service.listarTodos();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public Produto buscarPorId(@PathVariable Long id) {
-        return produtoService.buscarPorId(id);
+    public ProdutoResponseDTO buscarPorId(@PathVariable Long id) {
+        return service.findProdutoById(id);
     }
 
-    @GetMapping("/codigo-barras/{codigoBarras}")
-    public Produto buscarPorCodigoBarras(@PathVariable String codigoBarras) {
-        return produtoService.buscarPorCodigoBarras(codigoBarras);
-    }
-
-    @GetMapping("/buscar")
-    public List<Produto> buscarPorNome(@RequestParam String nome) {
-        return produtoService.buscarPorNome(nome);
+    @GetMapping
+    public ResponseEntity<List<ProdutoResponseDTO>> buscarPorNome(@RequestParam String nome) {
+        List<ProdutoResponseDTO> response = service.buscarPorNome(nome);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    public Produto atualizar(@PathVariable Long id, @RequestBody Produto produto) {
-        return produtoService.atualizar(id, produto);
+    public ResponseEntity<ProdutoResponseDTO> atualizar(@PathVariable Long id, @RequestBody CriarProdutoRequestDTO produto) {
+        ProdutoResponseDTO response =  service.atualizar(id,produto);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletar(@PathVariable Long id) {
-        produtoService.deletar(id);
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }
