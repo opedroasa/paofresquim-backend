@@ -7,8 +7,9 @@ import java.util.List;
 
 public record VendaResponseDTO(
         Long id,
-        List<ProdutoResponseDTO> produtos,
+        List<ProdutoVendaResponseDTO> produtos,
         Long idCliente,
         Long idFuncionario,
-        BigDecimal subTotal
+        BigDecimal subTotal,
+        boolean statusPagamento
 ) {}
