@@ -1,6 +1,6 @@
-package br.com.paofresquim.produto;
+package com.fresquim.paofresquim_backend.entity;
 
-import br.com.paofresquim.estoque.Estoque;
+import com.fresquim.paofresquim_backend.entity.Estoque;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
