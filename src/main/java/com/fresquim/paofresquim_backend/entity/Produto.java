@@ -1,17 +1,13 @@
 package com.fresquim.paofresquim_backend.entity;
 
+import com.fresquim.paofresquim_backend.entity.enums.Unidade;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
-@Table(
-        name = "produto",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_produto_codigo_barras", columnNames = "codigo_barras")
-        }
-)
+@Table(name = "produto")
 public class Produto {
 
     @Id
@@ -19,26 +15,23 @@ public class Produto {
     @Column(name = "id_produto")
     private Long id;
 
-    @Column(name = "nome", nullable = false, length = 120)
+    @Column(name = "nome", nullable = false)
     private String nome;
 
-    @Column(name = "preco", nullable = false, precision = 10, scale = 2)
+    @Column(name = "preco", nullable = false)
     private BigDecimal preco;
 
-    @Column(name = "unidade_medida", nullable = false, length = 10)
-    private String unidadeMedida;
+    @Column(name = "unidade_medida", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Unidade unidadeMedida;
 
-    @Column(name = "codigo_barras", nullable = false, length = 50)
+    @Column(name = "codigo_barras", nullable = false)
     private String codigoBarras;
-
-    @OneToOne(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Estoque estoque;
 
     public Produto() {
     }
 
-    public Produto(Long id, String nome, BigDecimal preco, String unidadeMedida, String codigoBarras) {
-        this.id = id;
+    public Produto( String nome, BigDecimal preco, Unidade unidadeMedida, String codigoBarras) {
         this.nome = nome;
         this.preco = preco;
         this.unidadeMedida = unidadeMedida;
@@ -57,16 +50,12 @@ public class Produto {
         return preco;
     }
 
-    public String getUnidadeMedida() {
+    public Unidade getUnidadeMedida() {
         return unidadeMedida;
     }
 
     public String getCodigoBarras() {
         return codigoBarras;
-    }
-
-    public Estoque getEstoque() {
-        return estoque;
     }
 
     public void setId(Long id) {
@@ -81,30 +70,11 @@ public class Produto {
         this.preco = preco;
     }
 
-    public void setUnidadeMedida(String unidadeMedida) {
+    public void setUnidadeMedida(Unidade unidadeMedida) {
         this.unidadeMedida = unidadeMedida;
     }
 
     public void setCodigoBarras(String codigoBarras) {
         this.codigoBarras = codigoBarras;
-    }
-
-    public void setEstoque(Estoque estoque) {
-        this.estoque = estoque;
-        if (estoque != null) {
-            estoque.setProduto(this);
-        }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Produto produto)) return false;
-        return Objects.equals(id, produto.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }

@@ -20,7 +20,7 @@ public class Venda {
     private BigDecimal valorTotal;
     @Column(nullable = false, name = "tipo_pagamento")
     private TipoPagamento tipoPagamento;
-    @Column(nullable = false, name = "status_pagamento")
+    @Column(name = "status_pagamento")
     private Boolean statusPagamento;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -46,7 +46,6 @@ public class Venda {
     }
 
     public Venda(
-            Long id,
             LocalDateTime dataVenda,
             BigDecimal valorTotal,
             TipoPagamento tipoPagamento,
@@ -54,7 +53,6 @@ public class Venda {
             Cliente cliente,
             Funcionario funcionario
     ) {
-        this.id = id;
         this.dataVenda = dataVenda;
         this.valorTotal = valorTotal;
         this.tipoPagamento = tipoPagamento;
