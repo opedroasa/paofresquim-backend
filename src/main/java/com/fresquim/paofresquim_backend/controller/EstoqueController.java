@@ -1,68 +1,71 @@
 package com.fresquim.paofresquim_backend.controller;
 
-import com.fresquim.paofresquim_backend.entity.Estoque;
+import com.fresquim.paofresquim_backend.dtos.ControleEstoqueRequestDTO;
+import com.fresquim.paofresquim_backend.dtos.CriarEstoqueRequestDTO;
+import com.fresquim.paofresquim_backend.dtos.EstoqueRequestDTO;
+import com.fresquim.paofresquim_backend.dtos.EstoqueResponseDTO;
 import com.fresquim.paofresquim_backend.service.EstoqueService;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
+@CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/estoques")
+@RequestMapping("/estoque")
 public class EstoqueController {
 
-    private final EstoqueService estoqueService;
+    private final EstoqueService service;
 
-    public EstoqueController(EstoqueService estoqueService) {
-        this.estoqueService = estoqueService;
+    public EstoqueController(EstoqueService service) {
+        this.service = service;
     }
 
-    @PostMapping("/produto/{produtoId}")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Estoque criar(@PathVariable Long produtoId, @RequestBody Estoque estoque) {
-        return estoqueService.criar(produtoId, estoque);
+    @PostMapping("/criar")
+    public ResponseEntity<EstoqueResponseDTO> criar( @RequestBody CriarEstoqueRequestDTO dto) {
+        EstoqueResponseDTO estoqueDTO = service.criar(dto);
+        return ResponseEntity.ok(estoqueDTO);
     }
 
-    @GetMapping
-    public List<Estoque> listarTodos() {
-        return estoqueService.listarTodos();
+    @GetMapping("/listar")
+    public ResponseEntity<List<EstoqueResponseDTO>> listarTodos() {
+        List<EstoqueResponseDTO> estoqueDTO = service.listarTodos();
+        return ResponseEntity.ok(estoqueDTO);
     }
 
     @GetMapping("/{id}")
-    public Estoque buscarPorId(@PathVariable Long id) {
-        return estoqueService.buscarPorId(id);
+    public ResponseEntity<EstoqueResponseDTO> buscarEstoquePorId(@PathVariable Long id) {
+        EstoqueResponseDTO estoqueDTO = service.buscarEstoquePorProduto(id);
+        return ResponseEntity.ok(estoqueDTO);
     }
 
     @GetMapping("/produto/{produtoId}")
-    public Estoque buscarPorProduto(@PathVariable Long produtoId) {
-        return estoqueService.buscarPorProduto(produtoId);
-    }
-
-    @GetMapping("/abaixo-do-minimo")
-    public List<Estoque> listarAbaixoDoMinimo() {
-        return estoqueService.listarAbaixoDoMinimo();
+    public ResponseEntity<EstoqueResponseDTO> buscarPorProduto(@PathVariable Long produtoId) {
+        EstoqueResponseDTO estoqueDTO = service.buscarEstoquePorProduto(produtoId);
+        return ResponseEntity.ok(estoqueDTO);
     }
 
     @PutMapping("/{id}")
-    public Estoque atualizar(@PathVariable Long id, @RequestBody Estoque estoque) {
-        return estoqueService.atualizar(id, estoque);
+    public ResponseEntity<EstoqueResponseDTO> atualizar(@PathVariable Long id, @RequestBody EstoqueRequestDTO dto) {
+        EstoqueResponseDTO estoqueDTO = service.atualizar(id, dto);
+        return ResponseEntity.ok(estoqueDTO);
     }
 
     @PatchMapping("/{id}/entrada")
-    public Estoque entrada(@PathVariable Long id, @RequestBody Map<String, BigDecimal> body) {
-        return estoqueService.adicionarQuantidade(id, body.get("quantidade"));
+    public ResponseEntity<EstoqueResponseDTO> entrada(@PathVariable Long id, @RequestBody ControleEstoqueRequestDTO dto) {
+        EstoqueResponseDTO estoqueDTO = service.adicionarQuantidade(id,dto);
+        return ResponseEntity.ok(estoqueDTO);
     }
 
     @PatchMapping("/{id}/saida")
-    public Estoque saida(@PathVariable Long id, @RequestBody Map<String, BigDecimal> body) {
-        return estoqueService.removerQuantidade(id, body.get("quantidade"));
+    public ResponseEntity<EstoqueResponseDTO> saida(@PathVariable Long id, @RequestBody ControleEstoqueRequestDTO dto) {
+        EstoqueResponseDTO estoqueDTO = service.removerQuantidade(id,dto);
+        return ResponseEntity.ok(estoqueDTO);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletar(@PathVariable Long id) {
-        estoqueService.deletar(id);
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -14,6 +14,10 @@ public class Funcionario {
     private String nome;
     private String telefone;
     private String endereco;
+    private String senha;
+
+    @Column(unique = true)
+    private String cpf;
 
     @Column(name = "telefone_emergencia")
     private String telefoneEmergencia;
@@ -55,7 +59,19 @@ public class Funcionario {
         return telefoneEmergencia;
     }
 
+    public String getSenha() {return senha;}
+
+    public void setSenha(String senha) {this.senha = senha;}
+
+    public String getCpf() {return cpf;}
+
+    public void setCpf(String cpf) {this.cpf = cpf;}
+
     public void setTelefoneEmergencia(String telefoneEmergencia) {
         this.telefoneEmergencia = telefoneEmergencia;
+    }
+
+    public Integer getId() {
+        return 0;
     }
 }

@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/funcionarios")
 public class FuncionarioController {
@@ -27,7 +26,7 @@ public class FuncionarioController {
         return service.buscarPorId(id);
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public List<Funcionario> listar() {
         return service.listar();
     }
