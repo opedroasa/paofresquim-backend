@@ -8,6 +8,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/funcionarios")
+@CrossOrigin(origins = "http://localhost:5180")
 public class FuncionarioController {
 
     private final FuncionarioService service;
@@ -21,14 +22,14 @@ public class FuncionarioController {
         return service.criar(funcionario);
     }
 
+    @GetMapping
+    public List<Funcionario> listar() {
+        return service.listar();
+    }
+
     @GetMapping("/{id}")
     public Funcionario buscar(@PathVariable Integer id) {
         return service.buscarPorId(id);
-    }
-
-    @GetMapping("/listar")
-    public List<Funcionario> listar() {
-        return service.listar();
     }
 
     @PutMapping

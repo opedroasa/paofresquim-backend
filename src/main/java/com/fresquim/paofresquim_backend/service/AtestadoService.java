@@ -1,6 +1,7 @@
 package com.fresquim.paofresquim_backend.service;
 
-import com.fresquim.paofresquim_backend.dtos.AtestadoDTO;
+import com.fresquim.paofresquim_backend.dtos.AtestadoResponseDTO;
+import com.fresquim.paofresquim_backend.dtos.CriarAtestadoRequestDTO;
 import com.fresquim.paofresquim_backend.entity.Atestado;
 import com.fresquim.paofresquim_backend.entity.Funcionario;
 import com.fresquim.paofresquim_backend.repository.AtestadoRepository;
@@ -8,56 +9,68 @@ import com.fresquim.paofresquim_backend.repository.FuncionarioRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class AtestadoService {
 
-    private final AtestadoRepository repository;
+    private final AtestadoRepository atestadoRepository;
     private final FuncionarioRepository funcionarioRepository;
 
-    public AtestadoService(AtestadoRepository repository,
-                           FuncionarioRepository funcionarioRepository) {
-        this.repository = repository;
+    public AtestadoService(
+            AtestadoRepository atestadoRepository,
+            FuncionarioRepository funcionarioRepository
+    ) {
+        this.atestadoRepository = atestadoRepository;
         this.funcionarioRepository = funcionarioRepository;
     }
 
-    public AtestadoDTO criar(AtestadoDTO dto) {
-
-        Funcionario funcionario = funcionarioRepository.findById(dto.getFuncionarioId())
+    public AtestadoResponseDTO criar(CriarAtestadoRequestDTO dto) {
+        Funcionario funcionario = funcionarioRepository.findById(dto.funcionarioId())
                 .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
+
+        if (dto.descricao() == null || dto.descricao().isBlank()) {
+            throw new IllegalArgumentException("Descrição é obrigatória");
+        }
+
+        if (dto.dataInicio() == null || dto.dataFim() == null) {
+            throw new IllegalArgumentException("Data de início e data de fim são obrigatórias");
+        }
+
+        if (dto.dataFim().isBefore(dto.dataInicio())) {
+            throw new IllegalArgumentException("Data de fim não pode ser anterior à data de início");
+        }
 
         Atestado atestado = new Atestado();
         atestado.setFuncionario(funcionario);
-        atestado.setDescricao(dto.getDescricao());
-        atestado.setDataInicio(dto.getDataInicio());
-        atestado.setDataFim(dto.getDataFim());
+        atestado.setDescricao(dto.descricao());
+        atestado.setDataInicio(dto.dataInicio());
+        atestado.setDataFim(dto.dataFim());
 
-        return toDTO(repository.save(atestado));
+        return toResponseDTO(atestadoRepository.save(atestado));
     }
 
-    public List<AtestadoDTO> listar() {
-        return repository.findAll()
+    public List<AtestadoResponseDTO> listar() {
+        return atestadoRepository.findAll()
                 .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+                .map(this::toResponseDTO)
+                .toList();
     }
 
-    public List<AtestadoDTO> listarPorFuncionario(Integer funcionarioId) {
-        return repository.findByFuncionarioId(funcionarioId)
+    public List<AtestadoResponseDTO> listarPorFuncionario(Integer funcionarioId) {
+        return atestadoRepository.findByFuncionarioIdFuncionario(funcionarioId)
                 .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+                .map(this::toResponseDTO)
+                .toList();
     }
 
-    private AtestadoDTO toDTO(Atestado atestado) {
-        AtestadoDTO dto = new AtestadoDTO();
-        dto.setId(atestado.getId());
-        dto.setFuncionarioId(atestado.getFuncionario().getId());
-        dto.setNomeFuncionario(atestado.getFuncionario().getNome());
-        dto.setDescricao(atestado.getDescricao());
-        dto.setDataInicio(atestado.getDataInicio());
-        dto.setDataFim(atestado.getDataFim());
-        return dto;
+    private AtestadoResponseDTO toResponseDTO(Atestado atestado) {
+        return new AtestadoResponseDTO(
+                atestado.getId(),
+                atestado.getFuncionario().getIdFuncionario(),
+                atestado.getFuncionario().getNome(),
+                atestado.getDescricao(),
+                atestado.getDataInicio(),
+                atestado.getDataFim()
+        );
     }
 }

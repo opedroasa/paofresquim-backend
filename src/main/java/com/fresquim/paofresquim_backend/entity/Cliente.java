@@ -11,18 +11,27 @@ public class Cliente {
     @Column(name = "id_cliente")
     private Integer idCliente;
 
+    @Column(nullable = false)
     private String nome;
+
     private String telefone;
-    private String endereco;
+
+    @Column(unique = true)
     private String email;
 
     @Column(name = "status_credito")
     private String statusCredito;
 
-    public Cliente() {}
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_endereco")
+    private Endereco endereco;
 
     public Integer getIdCliente() {
         return idCliente;
+    }
+
+    public void setIdCliente(Integer idCliente) {
+        this.idCliente = idCliente;
     }
 
     public String getNome() {
@@ -31,7 +40,7 @@ public class Cliente {
 
     public void setNome(String nome) {
         if (nome == null || nome.isBlank()) {
-            throw new IllegalArgumentException("Nome obrigatório");
+            throw new IllegalArgumentException("Nome é obrigatório");
         }
         this.nome = nome;
     }
@@ -42,14 +51,6 @@ public class Cliente {
 
     public void setTelefone(String telefone) {
         this.telefone = telefone;
-    }
-
-    public String getEndereco() {
-        return endereco;
-    }
-
-    public void setEndereco(String endereco) {
-        this.endereco = endereco;
     }
 
     public String getEmail() {
@@ -69,5 +70,16 @@ public class Cliente {
 
     public void setStatusCredito(String statusCredito) {
         this.statusCredito = statusCredito;
+    }
+
+    public Endereco getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(Endereco endereco) {
+        if (endereco == null) {
+            throw new IllegalArgumentException("Endereço é obrigatório");
+        }
+        this.endereco = endereco;
     }
 }

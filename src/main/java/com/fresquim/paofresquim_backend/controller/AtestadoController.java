@@ -1,6 +1,7 @@
 package com.fresquim.paofresquim_backend.controller;
 
-import com.fresquim.paofresquim_backend.dtos.AtestadoDTO;
+import com.fresquim.paofresquim_backend.dtos.AtestadoResponseDTO;
+import com.fresquim.paofresquim_backend.dtos.CriarAtestadoRequestDTO;
 import com.fresquim.paofresquim_backend.service.AtestadoService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,17 +19,17 @@ public class AtestadoController {
     }
 
     @PostMapping
-    public AtestadoDTO criar(@RequestBody AtestadoDTO dto) {
+    public AtestadoResponseDTO criar(@RequestBody CriarAtestadoRequestDTO dto) {
         return service.criar(dto);
     }
 
     @GetMapping
-    public List<AtestadoDTO> listar() {
+    public List<AtestadoResponseDTO> listar() {
         return service.listar();
     }
 
     @GetMapping("/funcionario/{id}")
-    public List<AtestadoDTO> listarPorFuncionario(@PathVariable Integer id) {
+    public List<AtestadoResponseDTO> listarPorFuncionario(@PathVariable Integer id) {
         return service.listarPorFuncionario(id);
     }
 }
