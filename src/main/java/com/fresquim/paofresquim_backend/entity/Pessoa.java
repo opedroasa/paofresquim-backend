@@ -2,6 +2,8 @@ package com.fresquim.paofresquim_backend.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @MappedSuperclass
 public abstract class Pessoa {
 
@@ -9,6 +11,12 @@ public abstract class Pessoa {
     private String nome;
 
     private String telefone;
+
+    @Column(unique = true, nullable = false)
+    private String cpf;
+
+    @Column(name = "data_nascimento", nullable = false)
+    private LocalDate dataNascimento;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_endereco")
@@ -22,6 +30,7 @@ public abstract class Pessoa {
         if (nome == null || nome.isBlank()) {
             throw new IllegalArgumentException("Nome é obrigatório");
         }
+
         this.nome = nome;
     }
 
@@ -33,14 +42,42 @@ public abstract class Pessoa {
         this.telefone = telefone;
     }
 
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+
+        if (cpf == null || cpf.isBlank()) {
+            throw new IllegalArgumentException("CPF é obrigatório");
+        }
+
+        this.cpf = cpf;
+    }
+
+    public LocalDate getDataNascimento() {
+        return dataNascimento;
+    }
+
+    public void setDataNascimento(LocalDate dataNascimento) {
+
+        if (dataNascimento == null) {
+            throw new IllegalArgumentException("Data de nascimento é obrigatória");
+        }
+
+        this.dataNascimento = dataNascimento;
+    }
+
     public Endereco getEndereco() {
         return endereco;
     }
 
     public void setEndereco(Endereco endereco) {
+
         if (endereco == null) {
             throw new IllegalArgumentException("Endereço é obrigatório");
         }
+
         this.endereco = endereco;
     }
 }

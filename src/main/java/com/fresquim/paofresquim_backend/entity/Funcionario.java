@@ -15,9 +15,6 @@ public class Funcionario extends Pessoa {
     @Column(name = "telefone_emergencia")
     private String telefoneEmergencia;
 
-    @Column(unique = true, nullable = false)
-    private String cpf;
-
     @Column(nullable = false)
     private String senha;
 
@@ -38,17 +35,6 @@ public class Funcionario extends Pessoa {
 
     public void setTelefoneEmergencia(String telefoneEmergencia) {
         this.telefoneEmergencia = telefoneEmergencia;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        if (cpf == null || cpf.isBlank()) {
-            throw new IllegalArgumentException("CPF é obrigatório");
-        }
-        this.cpf = cpf;
     }
 
     public String getSenha() {
