@@ -9,5 +9,7 @@ public record ProdutoResponseDTO(
         String nome,
         BigDecimal preco,
         Unidade unidadeMedida,
-        String codigoBarras
-) { }
+        String codigoBarras,
+        Boolean favorito
+) {
+}

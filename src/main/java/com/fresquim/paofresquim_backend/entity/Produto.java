@@ -28,14 +28,17 @@ public class Produto {
     @Column(name = "codigo_barras", nullable = false)
     private String codigoBarras;
 
-    public Produto() {
-    }
+    @Column(nullable = false)
+    private Boolean favorito = false;
 
-    public Produto( String nome, BigDecimal preco, Unidade unidadeMedida, String codigoBarras) {
+    public Produto() {}
+
+    public Produto(String nome, BigDecimal preco, Unidade unidadeMedida, String codigoBarras, Boolean favorito) {
         this.nome = nome;
         this.preco = preco;
         this.unidadeMedida = unidadeMedida;
         this.codigoBarras = codigoBarras;
+        this.favorito = favorito != null ? favorito : false;
     }
 
     public Long getId() {
@@ -77,4 +80,8 @@ public class Produto {
     public void setCodigoBarras(String codigoBarras) {
         this.codigoBarras = codigoBarras;
     }
+
+    public Boolean getFavorito() {return favorito;}
+
+    public void setFavorito(Boolean favorito) {this.favorito = favorito;}
 }

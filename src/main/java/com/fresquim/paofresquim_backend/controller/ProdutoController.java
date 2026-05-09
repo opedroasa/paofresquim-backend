@@ -22,6 +22,7 @@ public class ProdutoController {
         this.service = service;
     }
 
+
     @PostMapping("/criar")
     public ResponseEntity<ProdutoResponseDTO> criar(@RequestBody CriarProdutoRequestDTO dto) {
         ProdutoResponseDTO response = service.criar(dto);

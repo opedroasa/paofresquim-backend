@@ -29,46 +29,36 @@ public class ProdutoService {
 
     public ProdutoResponseDTO criar(CriarProdutoRequestDTO produtoDTO) {
         if (!existeProdutoPorNome(produtoDTO.nome())) {
-            Produto produto = new Produto(produtoDTO.nome(), produtoDTO.preco(), produtoDTO.unidadeMedida(), produtoDTO.codigoBarras());
-            produtoRepository.save(produto);
-            return new ProdutoResponseDTO(
-                    produto.getId(),
-                    produto.getNome(),
-                    produto.getPreco(),
+            Produto produto = new Produto(
+                    produtoDTO.nome(),
+                    produtoDTO.preco(),
+                    produtoDTO.unidadeMedida(),
+                    produtoDTO.codigoBarras(),
+                    produtoDTO.favorito()
+            );
 
-                    produto.getUnidadeMedida(),
-                    produto.getCodigoBarras()
-            );
-        } else {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Já existe esse produto cadastrado."
-            );
+            produtoRepository.save(produto);
+            return toResponseDTO(produto);
         }
+
+        throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "Já existe esse produto cadastrado."
+        );
     }
 
     public List<ProdutoResponseDTO> listarTodos() {
-        return produtoRepository.findAll().stream().map(produto ->
-                new ProdutoResponseDTO(
-                        produto.getId(),
-                        produto.getNome(),
-                        produto.getPreco(),
-                        produto.getUnidadeMedida(),
-                        produto.getCodigoBarras()
-                )
-        ).toList();
+        return produtoRepository.findAll()
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     public List<ProdutoResponseDTO> buscarPorNome(String nome) {
-        return produtoRepository.findByNomeContainingIgnoreCase(nome).stream().map(produto ->
-                new ProdutoResponseDTO(
-                        produto.getId(),
-                        produto.getNome(),
-                        produto.getPreco(),
-                        produto.getUnidadeMedida(),
-                        produto.getCodigoBarras()
-                )
-        ).toList();
+        return produtoRepository.findByNomeContainingIgnoreCase(nome)
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     public ProdutoResponseDTO atualizar(Long id, CriarProdutoRequestDTO produtoDTO) {
@@ -78,23 +68,31 @@ public class ProdutoService {
         produto.setUnidadeMedida(produtoDTO.unidadeMedida());
         produto.setCodigoBarras(produtoDTO.codigoBarras());
         produto.setPreco(produtoDTO.preco());
+        produto.setFavorito(produtoDTO.favorito() != null ? produtoDTO.favorito() : false);
+
         produtoRepository.save(produto);
-        return new ProdutoResponseDTO(
-                produto.getId(),
-                produto.getNome(),
-                produto.getPreco(),
-                produto.getUnidadeMedida(),
-                produto.getCodigoBarras()
-        );
+
+        return toResponseDTO(produto);
     }
 
     public ProdutoResponseDTO findProdutoById(Long id) {
-       Produto produto = produtoRepository.getReferenceById(id);
-        return new ProdutoResponseDTO(produto.getId(),produto.getNome(),produto.getPreco(),produto.getUnidadeMedida(), produto.getCodigoBarras());
+        Produto produto = produtoRepository.getReferenceById(id);
+        return toResponseDTO(produto);
     }
 
     public void deletar(Long id) {
         Produto produto = recuperaProdutoPorId(id);
         produtoRepository.delete(produto);
+    }
+
+    private ProdutoResponseDTO toResponseDTO(Produto produto) {
+        return new ProdutoResponseDTO(
+                produto.getId(),
+                produto.getNome(),
+                produto.getPreco(),
+                produto.getUnidadeMedida(),
+                produto.getCodigoBarras(),
+                produto.getFavorito()
+        );
     }
 }

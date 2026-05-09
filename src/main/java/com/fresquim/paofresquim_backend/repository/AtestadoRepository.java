@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface AtestadoRepository extends JpaRepository<Atestado, Integer> {
 
-    List<Atestado> findByFuncionarioId(Integer funcionarioId);
+    List<Atestado> findByFuncionarioIdFuncionario(Integer idFuncionario);
 }
