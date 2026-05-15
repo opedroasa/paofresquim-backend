@@ -10,6 +10,7 @@ public record ProdutoResponseDTO(
         BigDecimal preco,
         Unidade unidadeMedida,
         String codigoBarras,
-        Boolean favorito
+        Boolean favorito,
+        BigDecimal quantidadeAtual
 ) {
 }

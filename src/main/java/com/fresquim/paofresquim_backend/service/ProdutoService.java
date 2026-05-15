@@ -7,6 +7,11 @@ import com.fresquim.paofresquim_backend.repository.ProdutoRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import com.fresquim.paofresquim_backend.entity.Estoque;
+import com.fresquim.paofresquim_backend.repository.EstoqueRepository;
+import com.fresquim.paofresquim_backend.repository.ItemVendaRepository;
+
+import java.math.BigDecimal;
 
 import java.util.List;
 
@@ -15,8 +20,24 @@ public class ProdutoService {
 
     private final ProdutoRepository produtoRepository;
 
-    public ProdutoService(ProdutoRepository produtoRepository) {
-        this.produtoRepository = produtoRepository;
+    private final EstoqueRepository estoqueRepository;
+
+    private final ItemVendaRepository itemVendaRepository;
+
+    public ProdutoService(
+            ProdutoRepository produtoRepository,
+            EstoqueRepository estoqueRepository,
+            ItemVendaRepository itemVendaRepository
+    ) {
+
+        this.produtoRepository =
+                produtoRepository;
+
+        this.estoqueRepository =
+                estoqueRepository;
+
+        this.itemVendaRepository =
+                itemVendaRepository;
     }
 
     private Boolean existeProdutoPorNome(String nome) {
@@ -81,18 +102,62 @@ public class ProdutoService {
     }
 
     public void deletar(Long id) {
-        Produto produto = recuperaProdutoPorId(id);
+
+        Produto produto =
+                recuperaProdutoPorId(id);
+
+        Estoque estoque =
+                estoqueRepository
+                        .findByProdutoId(id)
+                        .orElse(null);
+
+        if (
+                estoque != null &&
+                        estoque.getQuantidadeAtual()
+                                .compareTo(BigDecimal.ZERO) > 0
+        ) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Não é possível excluir o produto pois ele possui estoque."
+            );
+        }
+
+        boolean possuiVenda =
+                itemVendaRepository
+                        .existsByProdutoId(id);
+
+        if (possuiVenda) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    """
+                    Não é possível excluir o produto pois ele já foi utilizado em vendas.
+                    """
+            );
+        }
+
+        if (estoque != null) {
+            estoqueRepository.delete(estoque);
+        }
+
         produtoRepository.delete(produto);
     }
 
     private ProdutoResponseDTO toResponseDTO(Produto produto) {
+        var estoque = estoqueRepository
+                .findByProdutoId(produto.getId());
+
         return new ProdutoResponseDTO(
                 produto.getId(),
                 produto.getNome(),
                 produto.getPreco(),
                 produto.getUnidadeMedida(),
                 produto.getCodigoBarras(),
-                produto.getFavorito()
+                produto.getFavorito(),
+                estoque
+                        .map(e -> e.getQuantidadeAtual())
+                        .orElse(null)
         );
     }
 }

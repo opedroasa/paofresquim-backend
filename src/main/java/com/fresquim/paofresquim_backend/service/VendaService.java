@@ -89,7 +89,14 @@ public class VendaService {
     public VendaResponseDTO registrarVenda(VendaRequestDTO vendaDTO) {
         Cliente cliente = recuperarClienteId(vendaDTO.idCliente());
         Funcionario funcionario = recuperarFuncionarioId(vendaDTO.idFuncionario());
-        Venda venda = new Venda(LocalDateTime.now(),BigDecimal.valueOf(0.0), null,false, cliente, funcionario);
+        Venda venda = new Venda(
+                LocalDateTime.now(),
+                BigDecimal.ZERO,
+                vendaDTO.tipoPagamento(),
+                false,
+                cliente,
+                funcionario
+        );
         vendaRepository.save(venda);
         List<ItemVenda> items = new ArrayList<>();
 

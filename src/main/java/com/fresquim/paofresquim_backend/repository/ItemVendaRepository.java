@@ -71,4 +71,6 @@ public interface ItemVendaRepository extends JpaRepository<ItemVenda, Long> {
             @Param("dataInicial") LocalDateTime dataInicial,
             @Param("dataFinal") LocalDateTime dataFinal
     );
+
+    boolean existsByProdutoId(Long produtoId);
 }
