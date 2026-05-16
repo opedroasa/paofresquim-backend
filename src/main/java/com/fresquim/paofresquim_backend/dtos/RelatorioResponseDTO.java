@@ -8,7 +8,7 @@ public record RelatorioResponseDTO(
         Long totalQuantidade,
         BigDecimal totalFiado,
         BigDecimal saldoAtual,
-        ProdutoMaisVendidoDTO produtoMaisVendido,
+        List<ProdutoMaisVendidoDTO> produtosMaisVendidos,
         List<HistoricoVendaDTO> vendas,
         List<ClienteFiadoDTO> clientesFiado
 ) {

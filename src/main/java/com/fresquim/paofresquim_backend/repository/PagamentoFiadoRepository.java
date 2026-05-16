@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Repository
 public interface PagamentoFiadoRepository extends JpaRepository<PagamentoFiado, Long> {
@@ -31,4 +33,7 @@ public interface PagamentoFiadoRepository extends JpaRepository<PagamentoFiado, 
         WHERE pf.quitado = false
     """)
     List<ClienteFiadoDTO> buscarClientesFiado();
+
+    Optional<PagamentoFiado>
+    findByVendaId(Long idVenda);
 }

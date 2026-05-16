@@ -34,4 +34,22 @@ public class VendaController {
     public ResponseEntity<List<VendaResponseDTO>> listar() {
         return ResponseEntity.ok(service.listarTodasVendas());
     }
+
+    @GetMapping("/fiado")
+    public ResponseEntity<List<VendaResponseDTO>> listarFiadosPendentes() {
+
+        return ResponseEntity.ok(
+                service.listarFiadosPendentes()
+        );
+    }
+
+    @PutMapping("/{id}/quitar")
+    public ResponseEntity<Void> quitarFiado(
+            @PathVariable Long id
+    ) {
+
+        service.quitarFiado(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }
