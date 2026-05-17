@@ -110,6 +110,28 @@ public class VendaService {
 
     public VendaResponseDTO registrarVenda(VendaRequestDTO vendaDTO) {
         Cliente cliente = recuperarClienteId(vendaDTO.idCliente());
+        if (
+
+                vendaDTO.tipoPagamento()
+                        ==
+                        TipoPagamento.FIADO
+
+                        &&
+
+                        cliente != null
+
+                        &&
+
+                        !"ATIVO".equalsIgnoreCase(
+                                cliente.getStatusCredito()
+                        )
+
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Cliente sem crédito para compras fiado."
+            );
+        }
         Funcionario funcionario = recuperarFuncionarioId(vendaDTO.idFuncionario());
         Venda venda = new Venda(
                 LocalDateTime.now(),

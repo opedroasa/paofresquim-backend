@@ -126,4 +126,28 @@ public interface ItemVendaRepository
     );
 
     boolean existsByProdutoId(Long produtoId);
+
+    @Query("""
+    SELECT new com.fresquim.paofresquim_backend.dtos.ProdutoMaisVendidoDTO(
+
+        p.nome,
+
+        SUM(iv.quantidade)
+    )
+
+    FROM ItemVenda iv
+
+    JOIN iv.produto p
+
+    JOIN iv.venda v
+
+    WHERE CAST(v.dataVenda AS LocalDate)
+    = CURRENT_DATE
+
+    GROUP BY p.nome
+
+    ORDER BY SUM(iv.quantidade) DESC
+""")
+    List<ProdutoMaisVendidoDTO>
+    buscarProdutosMaisVendidosHoje();
 }

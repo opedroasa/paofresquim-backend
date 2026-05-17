@@ -36,4 +36,13 @@ public interface PagamentoFiadoRepository extends JpaRepository<PagamentoFiado, 
 
     Optional<PagamentoFiado>
     findByVendaId(Long idVenda);
+
+    @Query("""
+    SELECT COUNT(pf)
+    FROM PagamentoFiado pf
+    WHERE pf.quitado = true
+    AND CAST(pf.dataPagamento AS LocalDate)
+    = CURRENT_DATE
+""")
+    Long buscarFiadosQuitadosHoje();
 }
